@@ -68,6 +68,11 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
       strcat(path,prepend);
       strcat(path,lfilename);
       strcat(path,"/");
+
+      if(PRINT_EMPTY_DIR)
+      { 
+            SERIAL_ECHOLN(path);
+      }
       
       //Serial.print(path);
       
