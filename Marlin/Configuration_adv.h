@@ -195,6 +195,9 @@
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
 
+// To report empty directorys to the host set PRINT_EMPTY_DIR to true (useful in combination with "repetier host") 
+//#define PRINT_EMPTY_DIR false 
+
 // The hardware watchdog should reset the Microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
