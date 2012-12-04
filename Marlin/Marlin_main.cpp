@@ -88,6 +88,7 @@
 // M29  - Stop SD write
 // M30  - Delete file from SD (M30 filename.g)
 // M31  - Output time since last M109 or SD card start to serial
+// M32  - Create directory (M32 <dirname>)
 // M42  - Change pin status via gcode
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
@@ -934,6 +935,19 @@ void process_commands()
 	 card.removeFile(strchr_pointer + 4);
 	}
 	break;
+
+     case 32: //M32 <dirname> Create directory
+	     if (card.cardOK){
+	   	  starpos = (strchr(strchr_pointer + 4,'*'));
+	          if(starpos != NULL){
+	                char* npos = strchr(cmdbuffer[bufindr], 'N');
+	                strchr_pointer = strchr(npos,' ') + 1;
+	                *(starpos-1) = '\0';
+	         }
+	         card.makedir(strchr_pointer + 4);
+	     }
+    break;
+
 	
 #endif //SDSUPPORT
 

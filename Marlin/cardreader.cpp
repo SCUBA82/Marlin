@@ -378,6 +378,21 @@ void CardReader::removeFile(char* name)
   
 }
 
+void CardReader::makedir(const char* relpath)
+{	
+        SdFile newfile;
+	SdFile *parent=&root;
+	if (relpath[0]=='/') relpath++;
+	if (newfile.mkdir(*parent,relpath)){
+		SERIAL_PROTOCOLPGM("directory created: ");
+		SERIAL_PROTOCOL(relpath);	
+	}
+	else{
+		SERIAL_PROTOCOLPGM("creation failed, directory: ");
+		SERIAL_PROTOCOL(relpath);
+	}
+}
+
 void CardReader::getStatus()
 {
   if(cardOK){
