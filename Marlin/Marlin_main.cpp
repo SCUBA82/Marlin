@@ -1202,7 +1202,6 @@ void process_commands()
               disable_e2();
             }
           #endif 
-          LCD_MESSAGEPGM(MSG_PART_RELEASE);
         }
       }
       break;
