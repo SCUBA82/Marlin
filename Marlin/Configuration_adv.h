@@ -407,7 +407,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 
 //// AUTOSET LOCATIONS OF LIMIT SWITCHES
 //// Added by ZetaPhoenix 09-15-2012
-#ifdef MANUAL_HOME_POSITION  //Use manual limit switch locations
+#ifdef MANUAL_HOME_POSITIONS  // Use manual limit switch locations
   #define X_HOME_POS MANUAL_X_HOME_POS
   #define Y_HOME_POS MANUAL_Y_HOME_POS
   #define Z_HOME_POS MANUAL_Z_HOME_POS
