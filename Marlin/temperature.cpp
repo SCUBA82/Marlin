@@ -96,6 +96,11 @@ static volatile bool temp_meas_ready = false;
 #endif //PIDTEMPBED
   static unsigned char soft_pwm[EXTRUDERS];
   static unsigned char soft_pwm_bed;
+#ifdef FAN_SOFT_PWM
+  static unsigned char soft_pwm_fan;
+#endif
+
+
   
 #if EXTRUDERS > 3
 # error Unsupported number of extruders
@@ -319,11 +324,11 @@ void manage_heater()
 
     #ifndef PID_OPENLOOP
         pid_error[e] = target_temperature[e] - pid_input;
-        if(pid_error[e] > 10) {
+        if(pid_error[e] > PID_FUNCTIONAL_RANGE) {
           pid_output = PID_MAX;
           pid_reset[e] = true;
         }
-        else if(pid_error[e] < -10) {
+        else if(pid_error[e] < -PID_FUNCTIONAL_RANGE) {
           pid_output = 0;
           pid_reset[e] = true;
         }
@@ -432,9 +437,9 @@ void manage_heater()
 	    soft_pwm_bed = 0;
 	  }
 
-    #elif not defined BED_LIMIT_SWITCHING
+    #elif !defined(BED_LIMIT_SWITCHING)
       // Check if temperature is within the correct range
-      if((current_temperature_bed > BED_MAXTEMP) && (current_temperature_bed < BED_MINTEMP))
+      if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP))
       {
         if(current_temperature_bed >= target_temperature_bed)
         {
@@ -597,6 +602,9 @@ void tp_init()
     #ifdef FAST_PWM_FAN
     setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
+    #ifdef FAN_SOFT_PWM
+	soft_pwm_fan=(unsigned char)fanSpeed;
+	#endif
   #endif  
 
   #ifdef HEATER_0_USES_MAX6675
@@ -861,7 +869,8 @@ int read_max6675()
   WRITE(MAX6675_SS, 0);
   
   // ensure 100ns delay - a bit extra is fine
-  delay(1);
+  asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
+  asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
   
   // read MSB
   SPDR = 0;
@@ -929,6 +938,10 @@ ISR(TIMER0_COMPB_vect)
     soft_pwm_b = soft_pwm_bed;
     if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1);
     #endif
+    #ifdef FAN_SOFT_PWM
+    soft_pwm_fan =(unsigned char) fanSpeed;
+    if(soft_pwm_fan > 0) WRITE(FAN_PIN,1);
+    #endif
   }
   if(soft_pwm_0 <= pwm_count) WRITE(HEATER_0_PIN,0);
   #if EXTRUDERS > 1
@@ -939,6 +952,9 @@ ISR(TIMER0_COMPB_vect)
   #endif
   #if HEATER_BED_PIN > -1
   if(soft_pwm_b <= pwm_count) WRITE(HEATER_BED_PIN,0);
+  #endif
+  #ifdef FAN_SOFT_PWM
+  if(soft_pwm_fan <= pwm_count) WRITE(FAN_PIN,0);
   #endif
   
   pwm_count++;
@@ -1042,6 +1058,7 @@ ISR(TIMER0_COMPB_vect)
 #if EXTRUDERS > 2
       current_temperature_raw[2] = raw_temp_2_value;
 #endif
+      current_temperature_bed_raw = raw_temp_bed_value;
     }
     
     temp_meas_ready = true;
@@ -1101,9 +1118,9 @@ ISR(TIMER0_COMPB_vect)
   /* No bed MINTEMP error? */
 #if defined(BED_MAXTEMP) && (TEMP_SENSOR_BED != 0)
 # if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
-    if(current_temperature_bed <= bed_maxttemp_raw) {
+    if(current_temperature_bed_raw <= bed_maxttemp_raw) {
 #else
-    if(current_temperature_bed >= bed_maxttemp_raw) {
+    if(current_temperature_bed_raw >= bed_maxttemp_raw) {
 #endif
        target_temperature_bed = 0;
        bed_max_temp_error();
