@@ -2071,6 +2071,7 @@ bool setTargetedHotend(int code){
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
+// M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M907 - Set digital trimpot motor current using axis codes.
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
@@ -2093,7 +2094,6 @@ CardReader card;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
-bool feedmultiplychanged;
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
@@ -2240,6 +2240,10 @@ void setup_powerhold()
       SET_OUTPUT(SUICIDE_PIN);
       WRITE(SUICIDE_PIN, HIGH);
    #endif
+ #endif
+ #if (PS_ON_PIN > -1)
+   SET_OUTPUT(PS_ON_PIN);
+   WRITE(PS_ON_PIN, PS_ON_AWAKE);
  #endif
 }
 
@@ -2475,10 +2479,10 @@ void get_command()
         stoptime=millis();
         char time[30];
         unsigned long t=(stoptime-starttime)/1000;
-        int sec,min;
-        min=t/60;
-        sec=t%60;
-        sprintf_P(time, PSTR("%i min, %i sec"),min,sec);
+        int hours, minutes;
+        minutes=(t/60)%60;
+        hours=t/60/60;
+        sprintf_P(time, PSTR("%i hours %i minutes"),hours, minutes);
         SERIAL_ECHO_START;
         SERIAL_ECHOLN(time);
         lcd_setstatus(time);
@@ -2781,7 +2785,7 @@ void process_commands()
   {
     switch( (int)code_value() ) 
     {
-#ifdef ULTRA_LCD
+#ifdef ULTIPANEL
     case 0: // M0 - Unconditional stop - Wait for user button press on LCD
     case 1: // M1 - Conditional stop - Wait for user button press on LCD
     {
@@ -2806,6 +2810,7 @@ void process_commands()
           lcd_update();
         }
       }
+      LCD_MESSAGEPGM(MSG_RESUMING);
     }
     break;
 #endif
@@ -3082,7 +3087,7 @@ void process_commands()
     #if (PS_ON_PIN > -1)
       case 80: // M80 - ATX Power On
         SET_OUTPUT(PS_ON_PIN); //GND
-        WRITE(PS_ON_PIN, LOW);
+        WRITE(PS_ON_PIN, PS_ON_AWAKE);
         break;
       #endif
       
@@ -3093,7 +3098,7 @@ void process_commands()
         suicide();
       #elif (PS_ON_PIN > -1)
         SET_OUTPUT(PS_ON_PIN); 
-        WRITE(PS_ON_PIN, HIGH);
+        WRITE(PS_ON_PIN, PS_ON_ASLEEP);
       #endif
 		break;
         
@@ -3164,7 +3169,10 @@ void process_commands()
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       break;
     case 117: // M117 display message
-      lcd_setstatus(cmdbuffer[bufindr]+5);
+      starpos = (strchr(strchr_pointer + 5,'*'));
+      if(starpos!=NULL)
+        *(starpos-1)='\0';
+      lcd_setstatus(strchr_pointer + 5);
       break;
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
@@ -3315,7 +3323,6 @@ void process_commands()
       if(code_seen('S')) 
       {
         feedmultiply = code_value() ;
-        feedmultiplychanged = true;
       }
     }
     break;
@@ -3438,6 +3445,13 @@ void process_commands()
         Config_PrintSettings();
     }
     break;
+    #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+    case 540:
+    {
+        if(code_seen('S')) abort_on_endstop_hit = code_value() > 0;
+    }
+    break;
+    #endif
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
       #if DIGIPOTSS_PIN > -1
@@ -3486,6 +3500,7 @@ void process_commands()
     break;
     case 999: // M999: Restart after being stopped
       Stopped = false;
+      lcd_reset_alert_level();
       gcode_LastN = Stopped_gcode_LastN;
       FlushSerialRequestResend();
     break;
