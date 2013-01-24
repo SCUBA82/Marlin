@@ -197,16 +197,36 @@
 #define SDSS -1 // SCL pin of I2C header
 #define LED_PIN -1
 
+#define BEEPER -1	
+#define SDCARDDETECT -1 		
+#define SUICIDE_PIN -1						//has to be defined; otherwise Power_off doesn't work
+
 #define FAN_PIN -1
 
 #define PS_ON_PIN 15
 
+
+ //buttons are directly attached
+     #define BTN_EN1 11
+     #define BTN_EN2 10
+     #define BTN_ENC 12  //the click
+         
+     #define BLEN_C 2
+     #define BLEN_B 1
+     #define BLEN_A 0
+
+     #define encrot0 0
+     #define encrot1 2
+     #define encrot2 3
+     #define encrot3 1
 //our pin for debugging.
 #define DEBUG_PIN 0
 
 //our RS485 pins
 #define TX_ENABLE_PIN 12
 #define RX_ENABLE_PIN 13
+
+
 
 #endif
 

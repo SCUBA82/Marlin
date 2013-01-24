@@ -11,7 +11,7 @@
 //#include "LiquidCrystalRus.h"
 //#define LCD_CLASS LiquidCrystalRus
 //#else
-#include <LiquidCrystal_I2C.h>
+#include "LiquidCrystal_I2C.h"
 #define LCD_CLASS LiquidCrystal_I2C
 //#endif
 
@@ -26,7 +26,7 @@
 #define LCD_STR_CLOCK       "\x07"
 #define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
 
-LCD_CLASS lcd(ULTRALCD_I2C, LCD_WIDTH, LCD_HEIGHT);  //I2C_address, width, height
+LCD_CLASS lcd(ULTIPANEL_I2C, LCD_WIDTH, LCD_HEIGHT);  //I2C_address, width, height
 static void lcd_implementation_init()
 {
     byte bedTemp[8] =
