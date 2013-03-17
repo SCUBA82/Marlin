@@ -181,13 +181,18 @@
 #define E0_DIR_PIN 18
 #define E0_ENABLE_PIN 25
 
+#define E1_STEP_PIN 21
+#define E1_DIR_PIN 18
+#define E1_ENAbLE_PIN 25
+
+
 #define TEMP_0_PIN 0
-#define TEMP_1_PIN -1
+#define TEMP_1_PIN 7 
 #define TEMP_2_PIN -1
 #define TEMP_BED_PIN 1
 
 #define HEATER_0_PIN 4
-#define HEATER_1_PIN -1
+#define HEATER_1_PIN 14 
 #define HEATER_2_PIN -1
 #define HEATER_BED_PIN 3
 
@@ -201,7 +206,7 @@
 #define SDCARDDETECT -1 		
 #define SUICIDE_PIN -1						//has to be defined; otherwise Power_off doesn't work
 
-#define FAN_PIN -1
+#define FAN_PIN 13 
 
 #define PS_ON_PIN 15
 
