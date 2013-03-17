@@ -199,7 +199,7 @@
 #define KILL_PIN -1
 
 #define SDPOWER -1
-#define SDSS -1 // SCL pin of I2C header
+#define SDSS 10 // SCL pin of I2C header
 #define LED_PIN -1
 
 #define BEEPER -1	
@@ -213,8 +213,8 @@
 
  //buttons are directly attached
      #define BTN_EN1 11
-     #define BTN_EN2 10
-     #define BTN_ENC 12  //the click
+     #define BTN_EN2 12
+     #define BTN_ENC 20  //the click
          
      #define BLEN_C 2
      #define BLEN_B 1
