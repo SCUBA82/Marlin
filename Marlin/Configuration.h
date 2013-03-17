@@ -312,7 +312,6 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 //#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
 //#define ULTIPANEL  //the ultipanel as on thingiverse
-//#define ULTIPANEL_I2C 0x20 //I2C Display support. Configure your I2C address PCF8574: 0x20 - 0x27 Tested with PCF8574(A) I2C Portexpander using LiquidCrystal_I2C
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
@@ -338,8 +337,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define ABS_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
 
 
-#ifdef ULTIPANEL
+#if defined ULTIPANEL || defined ULTIPANEL_I2C
 //  #define NEWPANEL  //enable this if you have a click-encoder panel
+// #define ULTIPANEL_I2C 0x20 //I2C Display support. Configure your I2C address PCF8574: 0x20 - 0x27 Tested with PCF8574(A) I2C Portexpander using LiquidCrystal_I2C
   #define SDSUPPORT
   #define ULTRA_LCD
   #define LCD_WIDTH 20
